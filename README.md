@@ -1,0 +1,81 @@
+# OpenFeature Community Updates
+
+A biweekly digest of the most notable pull requests, issues, and discussions across the [open-feature](https://github.com/open-feature) org. Each edition curates what actually shipped and what's worth watching, skipping routine dependency bumps and automated release PRs.
+
+> These digests are generated automatically by an AI agent running a Claude Code skill on a recurring schedule. They aim to surface signal, but may miss or misframe things; corrections and PRs welcome.
+
+## Recent editions
+
+<!-- BEGIN:editions -->
+- [Jun 25 to Jul 9, 2026](./2026-07-09.md)
+<!-- END:editions -->
+
+---
+
+<!-- BEGIN:latest -->
+# OpenFeature Community Update: Jun 25 to Jul 9, 2026
+
+_A biweekly digest of the most notable pull requests, issues, and discussions across the [open-feature](https://github.com/open-feature) org._
+
+## TL;DR
+
+- **Provider lifecycle events landed in the spec.** Providers now own their lifecycle events; the SDK derives status from events instead of `init()` return values ([spec#385](https://github.com/open-feature/spec/pull/385)).
+- **The bound-domain initiative kicked off** across the spec and every SDK ([spec#393](https://github.com/open-feature/spec/pull/393), [protocol#80](https://github.com/open-feature/protocol/pull/80)).
+- **flagd's sync layer got busy:** ETag/content-hash dedup, new string operators, and per-Sync readiness.
+- **Two new proposals to watch:** a flag distribution & observability layer ([spec#390](https://github.com/open-feature/spec/issues/390)) and a Code Readiness hook ([spec#405](https://github.com/open-feature/spec/pull/405)).
+
+## Spec & Protocol
+
+### Shipped
+- **[spec#385](https://github.com/open-feature/spec/pull/385): Provider state ownership via events.** Providers now emit their own lifecycle events (`PROVIDER_READY`, `PROVIDER_ERROR`, etc.) and the SDK derives status from those events rather than inferring it from the return of `init()`. Resolves the long-running multi-threaded race condition discussed in [spec#365](https://github.com/open-feature/spec/issues/365) (15 comments).
+- **[spec#393](https://github.com/open-feature/spec/pull/393): Supply the bound domain to provider initialization.** The bound `domain` is now passed to provider `initialize`, plus an opt-in `domain-scoped` declaration, letting providers partition domain-specific state such as persistent caches. Kicks off the cross-SDK initiative below.
+- **[protocol#80](https://github.com/open-feature/protocol/pull/80): ADR 0009 amendment.** Ties the OFREP local-persistence cache key to the resource it came from, `hash(url + auth + domain + targetingKey)`, demoting `cacheKeyPrefix` to an optional supplement.
+
+### Proposals to watch
+- **[spec#390](https://github.com/open-feature/spec/issues/390): Flag distribution layer & observability** (9 comments, open). A provider-neutral data model for the available-flag inventory (which flags exist, their defaults, variants, flag-set membership, version) plus an emitter-agnostic way to observe it, extending OpenFeature beyond per-evaluation telemetry. One of the more strategically significant open discussions.
+- **[spec#405](https://github.com/open-feature/spec/pull/405): Code Readiness hook.** A draft hook that prevents enabling a flag in running binaries that are not code-ready. Part of a cross-SDK effort (see below).
+- **[flagd#1979](https://github.com/open-feature/flagd/pull/1979): numeric coercion proposal.** Defines numeric coercion behavior and IEEE-754 safe-int limits across all flagd implementations (fixes [flagd#1978](https://github.com/open-feature/flagd/issues/1978)).
+
+## Cross-SDK initiatives
+
+### Bound domain to provider initialization
+Driven by [spec#393](https://github.com/open-feature/spec/pull/393) and [protocol#80](https://github.com/open-feature/protocol/pull/80), giving providers access to their bound domain at initialization. Umbrella tracking issue: [spec#403](https://github.com/open-feature/spec/issues/403), with per-SDK issues filed across swift, kotlin, rust, ruby, dotnet, python, go, java, and js.
+
+**In flight:** [ruby-sdk#298](https://github.com/open-feature/ruby-sdk/pull/298) · [java-sdk#1982](https://github.com/open-feature/java-sdk/pull/1982) · [python-sdk#616](https://github.com/open-feature/python-sdk/pull/616) · [js-sdk#1433](https://github.com/open-feature/js-sdk/pull/1433) · [js-sdk-contrib#1569](https://github.com/open-feature/js-sdk-contrib/pull/1569) (OFREP-web domain-aware cache key).
+
+### Code Readiness hook
+[spec#405](https://github.com/open-feature/spec/pull/405) with parallel implementation PRs in [java-sdk-contrib#1819](https://github.com/open-feature/java-sdk-contrib/pull/1819) and [go-sdk-contrib#904](https://github.com/open-feature/go-sdk-contrib/pull/904), both adding a hook for version-based flag validation.
+
+## flagd & Operator
+
+### flagd
+- **[flagd#1991](https://github.com/open-feature/flagd/pull/1991): ETag & content-hash support for blob sync**, deduping unchanged payloads (companion issue [flagd#1988](https://github.com/open-feature/flagd/issues/1988)).
+- **[flagd#1982](https://github.com/open-feature/flagd/pull/1982): lower/upper string casing operators** in the evaluator.
+- **[flagd#1985](https://github.com/open-feature/flagd/pull/1985): per-Sync gRPC readiness.** Part of an active reliability push, alongside [flagd#1987](https://github.com/open-feature/flagd/pull/1987) (health-routing) and [flagd#1990](https://github.com/open-feature/flagd/pull/1990) (non-string YAML keys).
+- **[go-sdk-contrib#903](https://github.com/open-feature/go-sdk-contrib/pull/903):** fix a data race in the flagd in-process service.
+
+### Operator
+- **[open-feature-operator#847](https://github.com/open-feature/open-feature-operator/issues/847):** add `ClusterFeatureFlagSource` / `ClusterInProcessConfiguration` and remove implicit cross-namespace resolution (notable CRD/security change).
+- **[open-feature-operator#849](https://github.com/open-feature/open-feature-operator/issues/849):** expose pod scheduling fields (nodeSelector/affinity/tolerations) on the Flagd CRD.
+- **[open-feature-operator#841](https://github.com/open-feature/open-feature-operator/issues/841):** `kubeVersion: >=1.29.0` in the v0.9.1 chart breaks deployment on EKS/GKE/AKS.
+
+## SDKs & Providers
+
+- **New providers:** Azure App Configuration ([js-sdk-contrib#1575](https://github.com/open-feature/js-sdk-contrib/pull/1575)); flagd retry/backoff config for .NET ([dotnet-sdk-contrib#699](https://github.com/open-feature/dotnet-sdk-contrib/pull/699)).
+- **Unleash expansion:** React + Angular web providers documented ([openfeature.dev#1408](https://github.com/open-feature/openfeature.dev/pull/1408)); Java provider updated to Unleash SDK 12 ([java-sdk-contrib#1818](https://github.com/open-feature/java-sdk-contrib/pull/1818)).
+- **[java-sdk#1985](https://github.com/open-feature/java-sdk/pull/1985):** add `long` support with safe delegation to `int`.
+- **Bug fixes & discussion:** go-sdk memprovider nil-func panic ([go-sdk#521](https://github.com/open-feature/go-sdk/issues/521), fix in [#522](https://github.com/open-feature/go-sdk/pull/522)); discussion on the flagd provider not rejecting schema-invalid JSON ([java-sdk-contrib#1809](https://github.com/open-feature/java-sdk-contrib/issues/1809), 5 comments).
+
+## Community & Governance
+
+- Archived the `ofep` repo ([community#556](https://github.com/open-feature/community/pull/556)).
+- Maintainer and committee updates ([community#550](https://github.com/open-feature/community/pull/550), [community#553](https://github.com/open-feature/community/pull/553)).
+- Added dual-mode (light/dark) branding icons ([community#552](https://github.com/open-feature/community/pull/552)).
+- Welcomed a new org member ([community#562](https://github.com/open-feature/community/pull/562)).
+
+---
+
+_Routine dependency bumps (renovate/dependabot) and automated release PRs are omitted from this digest._
+
+_Generated on 2026-07-09. Covers activity from 2026-06-25 to 2026-07-09._
+<!-- END:latest -->
