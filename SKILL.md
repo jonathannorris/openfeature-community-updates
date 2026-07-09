@@ -7,8 +7,8 @@ description: Generate the biweekly OpenFeature community update digest, a curate
 
 Produces a curated digest of meaningful activity across the [open-feature](https://github.com/open-feature) org over the last **14 days**, for the OpenFeature community. Favor signal over completeness. **Omit routine noise**: renovate/dependabot bumps, automated release-please/openfeaturebot PRs, dependency-dashboard issues.
 
-Each run writes two files in this folder:
-1. `YYYY-MM-DD.md`: a standalone dated edition (the run date).
+Each run writes:
+1. `updates/YYYY-MM-DD.md`: a standalone dated edition (the run date).
 2. `README.md`: updated to link the 5 most recent editions and inline the full body of the latest one.
 
 ## Workflow
@@ -28,7 +28,7 @@ Each run writes two files in this folder:
 
    Drop dependency bumps, automated release PRs, dependency-dashboard issues, and trivial docs/typo fixes; these may be summarized in one aggregate line.
 
-3. **Write the dated edition** `YYYY-MM-DD.md`. Follow [FORMAT.md](FORMAT.md) exactly (section skeleton, `repo#number` links, no em dashes).
+3. **Write the dated edition** `updates/YYYY-MM-DD.md`. Follow [FORMAT.md](FORMAT.md) exactly (section skeleton, `repo#number` links, no em dashes).
 
 4. **Update `README.md`** by running the script. It regenerates only the marked regions (recent-editions list, capped at 5, and the inlined latest body) from the dated files; the intro and disclosure are left untouched.
    ```bash
@@ -41,4 +41,4 @@ Each run writes two files in this folder:
 
 - `gh search prs --merged` is a boolean flag; the date bound goes in the query string as `merged:>=DATE` (handled inside `gather.sh`).
 - The window is always 14 days ending on the run date.
-- The canonical format example is the most recent dated edition in this folder.
+- The canonical format example is the most recent dated edition in updates/.

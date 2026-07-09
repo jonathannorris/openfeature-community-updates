@@ -7,7 +7,7 @@ A biweekly digest of the most notable pull requests, issues, and discussions acr
 ## Recent editions
 
 <!-- BEGIN:editions -->
-- [Jun 25 to Jul 9, 2026](./2026-07-09.md)
+- [Jun 25 to Jul 9, 2026](./updates/2026-07-09.md)
 <!-- END:editions -->
 
 ---

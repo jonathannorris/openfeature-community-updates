@@ -1,8 +1,8 @@
 # Digest format reference
 
-The canonical example is the most recent dated edition in this folder. When in doubt, match it.
+The canonical example is the most recent dated edition in updates/. When in doubt, match it.
 
-## Dated edition (`YYYY-MM-DD.md`)
+## Dated edition (`updates/YYYY-MM-DD.md`)
 
 Filename is the run date. Section headings below are stable; drop a section only when it has no qualifying items that period.
 
@@ -64,7 +64,7 @@ Everything outside the markers (intro paragraph, disclosure blockquote) is hand-
 ## Recent editions
 
 <!-- BEGIN:editions -->
-- [<Mon D to Mon D, YYYY>](./YYYY-MM-DD.md)   (up to 5, newest first)
+- [<Mon D to Mon D, YYYY>](./updates/YYYY-MM-DD.md)   (up to 5, newest first)
 <!-- END:editions -->
 
 ---
