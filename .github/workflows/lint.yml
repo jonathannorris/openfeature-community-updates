@@ -1,0 +1,47 @@
+name: Lint
+
+# gh-aw ships no in-sync check of its own: the compiled .lock.yml is what Actions
+# actually runs, so a hand-edited lock or a forgotten recompile would silently
+# diverge from the .md source. This gate catches that, and shellchecks the
+# scripts the workflow depends on.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  workflows-in-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Install gh-aw
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Pinned: gh-aw is in public preview and has a history of breaking
+        # frontmatter changes. Bump this deliberately, then recompile.
+        run: gh extension install github/gh-aw --pin v0.86.2
+
+      - name: Recompile and diff
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh aw compile
+          if ! git diff --exit-code; then
+            echo "::error::Compiled lock files are out of date. Run 'gh aw compile' and commit the result."
+            exit 1
+          fi
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      # warning and above: the info-level notes are style preferences, and
+      # failing on them would block on pre-existing scripts for no benefit.
+      - name: Run shellcheck
+        run: shellcheck --severity=warning scripts/*.sh

@@ -13,7 +13,10 @@ UPDATES="updates"
 # Collect dated editions (updates/YYYY-MM-DD.md), newest first. bash 3.2 safe (no mapfile).
 EDITIONS=()
 while IFS= read -r f; do EDITIONS+=("$f"); done < <(
-  ls -1 "$UPDATES" 2>/dev/null | grep -E '^[0-9]{4}-[0-9]{2}-[0-9]{2}\.md$' | sort -r
+  for p in "$UPDATES"/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9].md; do
+    [ -e "$p" ] || continue   # the glob itself when updates/ has no editions
+    basename "$p"
+  done | sort -r
 )
 if [ "${#EDITIONS[@]}" -eq 0 ]; then
   echo "error: no dated editions (updates/YYYY-MM-DD.md) found" >&2

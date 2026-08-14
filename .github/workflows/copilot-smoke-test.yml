@@ -1,0 +1,49 @@
+name: Copilot smoke test
+
+# Proves that Copilot inference works in Actions using only the built-in Actions
+# token, with no PAT and no external API key. Run this before trusting anything
+# else that depends on Copilot.
+#
+#   Pass  -> Copilot is billable from Actions in this repo; proceed.
+#   Fail at the inference step, or a rejected `ghs_` token
+#         -> the owning org/user needs the Copilot policy
+#            "Allow use of Copilot CLI billed to the organization"
+#            (Settings -> Copilot -> Policies).
+#
+# Delete this workflow once the real digest workflow has run successfully.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  copilot-requests: write
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Install Copilot CLI
+        run: npm install -g @github/copilot
+
+      - name: Report Copilot CLI version
+        run: copilot --version
+
+      - name: Run a trivial prompt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          copilot --yolo -p "Reply with exactly the word: ok" 2>&1 | tee result.txt
+          echo "--- exit status: $? ---"
+
+      - name: Surface the result
+        if: always()
+        run: |
+          {
+            echo '### Copilot smoke test'
+            echo
+            echo '```'
+            cat result.txt 2>/dev/null || echo '(no output captured)'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
