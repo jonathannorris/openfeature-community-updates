@@ -90,6 +90,11 @@ jobs:
         uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
+          # Required, and must stay explicit. gh-aw injects
+          # `persist-credentials: false` into checkout steps when it is not set,
+          # which leaves the remote with no auth and fails the push with
+          # "could not read Username". Only visible in the compiled lock file.
+          persist-credentials: true
 
       # Outside the checkout deliberately. Downloading into the workspace would
       # leave an untracked directory that the changed-files check in
