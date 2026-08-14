@@ -28,7 +28,7 @@ A run produces exactly one file: `updates/YYYY-MM-DD.md`, a standalone dated edi
 
 3. **Check the previous edition.** Read the most recent existing file in `updates/` before writing. The activity window is 14 days but editions are published weekly, so consecutive editions overlap by seven days by design. Do not re-report an item already covered there unless there is genuinely new development, and when there is, frame it as the update rather than repeating the original summary.
 
-4. **Write the dated edition** to `updates/YYYY-MM-DD.md`, using the run date the invoking prompt gives you. Follow `FORMAT.md` at the repository root exactly: section skeleton, `repo#number` link style, and **no em dashes**.
+4. **Write the dated edition** to `updates/YYYY-MM-DD.md`, using the run date the invoking prompt gives you. Follow [FORMAT.md](FORMAT.md) exactly: section skeleton, `repo#number` link style, and **no em dashes**.
 
    Every `https://github.com/...` link must point at something that actually exists. Fabricated PR and issue numbers are the failure mode this digest is most prone to, and they are checked automatically before publication. If you are unsure of a number, omit the item.
 
