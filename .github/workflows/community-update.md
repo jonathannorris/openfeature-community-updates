@@ -14,8 +14,12 @@ on:
         required: false
         default: "14"
 
-engine: copilot
-model: copilot/claude-sonnet-4.6
+# gh-aw has no reasoning-effort field, so the level is passed straight through to
+# the Copilot CLI. Valid levels: none, low, medium, high, xhigh, max.
+engine:
+  id: copilot
+  args: ["--reasoning-effort", "xhigh"]
+model: copilot/gpt-5.6-luna
 
 # Read-only by design. The agent must not be able to commit or push; publishing
 # is done by the `publish` job below, which is the only thing holding
@@ -90,6 +94,11 @@ jobs:
         uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
+          # Required, and must stay explicit. gh-aw injects
+          # `persist-credentials: false` into checkout steps when it is not set,
+          # which leaves the remote with no auth and fails the push with
+          # "could not read Username". Only visible in the compiled lock file.
+          persist-credentials: true
 
       # Outside the checkout deliberately. Downloading into the workspace would
       # leave an untracked directory that the changed-files check in
