@@ -1,12 +1,12 @@
 ---
 on:
-  # Thu 13:00 UTC == 09:00 America/New_York while EDT is in effect (08:00 in EST).
+  # Thu 12:00 UTC == 08:00 America/New_York while EDT is in effect (07:00 in EST).
   # An explicit cron is used deliberately: fuzzy schedules ("weekly on thursday")
   # get deterministically scattered, which we do not want for a published cadence.
-  # `date -u +%F` at 13:00 UTC Thursday is the same calendar date in ET, so the
+  # `date -u +%F` at 12:00 UTC Thursday is the same calendar date in ET, so the
   # run date has no off-by-one. Do not "fix" this.
   schedule:
-    - cron: "17 13 * * 4"
+    - cron: "0 12 * * 4"
   workflow_dispatch:
     inputs:
       days:
