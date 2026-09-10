@@ -2,7 +2,7 @@
 
 A biweekly digest of the most notable pull requests, issues, and discussions across the [open-feature](https://github.com/open-feature) org. Each edition curates what actually shipped and what's worth watching, skipping routine dependency bumps and automated release PRs.
 
-> These digests are generated automatically by an AI agent running a Claude Code skill on a recurring schedule. They aim to surface signal, but may miss or misframe things; corrections and PRs welcome.
+> These digests are generated automatically by an AI agent on a recurring schedule. They aim to surface signal, but may miss or misframe things; corrections and PRs welcome.
 
 ## Recent editions
 

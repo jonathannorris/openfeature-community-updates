@@ -59,7 +59,7 @@ Everything outside the markers (intro paragraph, disclosure blockquote) is hand-
 
 <one-paragraph intro>
 
-> These digests are generated automatically by an AI agent running a Claude Code skill on a recurring schedule. They aim to surface signal, but may miss or misframe things; corrections and PRs welcome.
+> These digests are generated automatically by an AI agent on a recurring schedule. They aim to surface signal, but may miss or misframe things; corrections and PRs welcome.
 
 ## Recent editions
 
