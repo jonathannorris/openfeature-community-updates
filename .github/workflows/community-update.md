@@ -1,12 +1,26 @@
 ---
 on:
-  # Thu 12:00 UTC == 08:00 America/New_York while EDT is in effect (07:00 in EST).
+  # Thu 10:23 UTC == 06:23 America/New_York while EDT is in effect (05:23 in EST).
   # An explicit cron is used deliberately: fuzzy schedules ("weekly on thursday")
   # get deterministically scattered, which we do not want for a published cadence.
-  # `date -u +%F` at 12:00 UTC Thursday is the same calendar date in ET, so the
+  # `date -u +%F` at 10:23 UTC Thursday is the same calendar date in ET, so the
   # run date has no off-by-one. Do not "fix" this.
+  #
+  # The odd minute and the early hour are both load-bearing, for the same goal of
+  # publishing before 09:00 ET:
+  #
+  #   - Never move this to :00. GitHub's scheduled queue is best-effort and the
+  #     top of the hour is its most contended slot. This workflow ran at "17 13"
+  #     and was ~43m late; it was changed to "0 12" for a tidier ET time and the
+  #     delay jumped to 217m, 220m, 242m on three consecutive weeks.
+  #   - 10:23 UTC leaves ~145m of slack before 09:00 ET at the observed ~8-12m
+  #     runtime, so a bad-but-not-absurd queue delay still lands on time.
+  #
+  # Scheduled runs have no delay guarantee at any hour. If publishing before
+  # 09:00 ET ever becomes a hard commitment rather than a preference, this needs
+  # an external trigger firing repository_dispatch, not an earlier cron.
   schedule:
-    - cron: "0 12 * * 4"
+    - cron: "23 10 * * 4"
   workflow_dispatch:
     inputs:
       days:
