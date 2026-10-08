@@ -1,9 +1,9 @@
 ---
 on:
-  # Thu 10:23 UTC == 06:23 America/New_York while EDT is in effect (05:23 in EST).
-  # An explicit cron is used deliberately: fuzzy schedules ("weekly on thursday")
+  # Wed 10:23 UTC == 06:23 America/New_York while EDT is in effect (05:23 in EST).
+  # An explicit cron is used deliberately: fuzzy schedules ("weekly on wednesday")
   # get deterministically scattered, which we do not want for a published cadence.
-  # `date -u +%F` at 10:23 UTC Thursday is the same calendar date in ET, so the
+  # `date -u +%F` at 10:23 UTC Wednesday is the same calendar date in ET, so the
   # run date has no off-by-one. Do not "fix" this.
   #
   # The odd minute and the early hour are both load-bearing, for the same goal of
@@ -20,7 +20,7 @@ on:
   # 09:00 ET ever becomes a hard commitment rather than a preference, this needs
   # an external trigger firing repository_dispatch, not an earlier cron.
   schedule:
-    - cron: "23 10 * * 4"
+    - cron: "23 10 * * 3"
   workflow_dispatch:
     inputs:
       days:
