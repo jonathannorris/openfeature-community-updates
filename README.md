@@ -7,64 +7,63 @@ A biweekly digest of the most notable pull requests, issues, and discussions acr
 ## Recent editions
 
 <!-- BEGIN:editions -->
+- [Oct 7 to Oct 21, 2026](./updates/2026-10-21.md)
 - [Sep 30 to Oct 14, 2026](./updates/2026-10-14.md)
 - [Sep 24 to Oct 8, 2026](./updates/2026-10-08.md)
 - [Sep 17 to Oct 1, 2026](./updates/2026-10-01.md)
 - [Sep 10 to Sep 24, 2026](./updates/2026-09-24.md)
-- [Sep 3 to Sep 17, 2026](./updates/2026-09-17.md)
 <!-- END:editions -->
 
 ---
 
 <!-- BEGIN:latest -->
-# OpenFeature Community Update: Sep 30 to Oct 14, 2026
+# OpenFeature Community Update: Oct 7 to Oct 21, 2026
 
 _A biweekly digest of the most notable pull requests, issues, and discussions across the [open-feature](https://github.com/open-feature) org._
 
 ## TL;DR
 
-- **The protocol now makes `targetingKey` optional again:** [protocol#86](https://github.com/open-feature/protocol/pull/86) restores the evaluation-context contract and updates the OFREP schema to 0.4.0.
-- **Provider conformance is taking shape as an experimental TCK:** [spec#439](https://github.com/open-feature/spec/pull/439) proposes capability tags, control APIs, extensions, and run-integrity checks.
-- **Dart shipped its first split client and server releases:** [dart-sdk#208](https://github.com/open-feature/dart-sdk/pull/208) and [dart-sdk#209](https://github.com/open-feature/dart-sdk/pull/209) publish client 0.0.1 and server 0.1.0.
-- **Fractional evaluation semantics are being aligned across providers:** [js-sdk-contrib#1636](https://github.com/open-feature/js-sdk-contrib/pull/1636) and [rust-sdk-contrib#165](https://github.com/open-feature/rust-sdk-contrib/pull/165) adopt context-wide bucketing with reassignment implications.
-- **The ecosystem directory added three more providers:** [openfeature.dev#1594](https://github.com/open-feature/openfeature.dev/pull/1594), [openfeature.dev#1587](https://github.com/open-feature/openfeature.dev/pull/1587), and [openfeature.dev#1585](https://github.com/open-feature/openfeature.dev/pull/1585).
+- **Provider conformance moved from design toward a reusable release:** [spec#423](https://github.com/open-feature/spec/pull/423) landed the executable assets, and [spec#448](https://github.com/open-feature/spec/pull/448) set their first version to experimental 0.1.0.
+- **Fractional v3 expanded beyond the rollout covered last edition:** [flagd#2011](https://github.com/open-feature/flagd/pull/2011), [dotnet-sdk-contrib#748](https://github.com/open-feature/dotnet-sdk-contrib/pull/748), and [python-sdk-contrib#415](https://github.com/open-feature/python-sdk-contrib/pull/415) now use deterministic CBOR hashing for non-string context values.
+- **flagd adopted a more portable targeting metadata shape:** [flagd#2089](https://github.com/open-feature/flagd/pull/2089) proposes a terminal `resolve` operator that works across the ecosystem's JSON logic engines.
+- **flagd observability improved while a Kubernetes scaling bug surfaced:** [flagd#2078](https://github.com/open-feature/flagd/pull/2078) adds flag-set IDs to evaluation metrics, while [flagd#2094](https://github.com/open-feature/flagd/issues/2094) reports quadratic cache and log growth with multiple Kubernetes sources.
 
 ## Spec & Protocol
 ### Shipped
 
-- **OFREP no longer requires a targeting key:** [protocol#86](https://github.com/open-feature/protocol/pull/86) removes `targetingKey` from the required evaluation-context fields, corrects the invalid-context examples, and advances the OpenAPI version from 0.3.0 to 0.4.0.
+- **Provider conformance assets are now executable and releasable:** [spec#423](https://github.com/open-feature/spec/pull/423) adds six Gherkin feature files, a canonical flag set, a control API description, and an embeddable Go module for language implementations. [spec#448](https://github.com/open-feature/spec/pull/448) corrects the initial package version to 0.1.0 while the capability vocabulary, control API, and Appendix F remain experimental.
 
-### Proposals to watch
+## Provider Conformance TCK
 
-- **Provider conformance gets an experimental Appendix F:** [spec#439](https://github.com/open-feature/spec/pull/439) defines capability tags, lifecycle and event distinctions, control-API expectations, extension rules, and integrity checks for a provider TCK.
+- **The cross-language suite is moving into real provider adoptions:** [spec#417](https://github.com/open-feature/spec/issues/417) tracks one shared definition of provider conformance across typed resolution, errors, lifecycle, events, reasons, and metadata. The Java implementation in [java-sdk-contrib#1830](https://github.com/open-feature/java-sdk-contrib/pull/1830) is merged, with [java-sdk-contrib#1945](https://github.com/open-feature/java-sdk-contrib/pull/1945) providing a root `tck` profile instead of provider-specific build setup.
+- **Provider comparisons are already finding different behavior:** [java-sdk-contrib#1947](https://github.com/open-feature/java-sdk-contrib/pull/1947) exercises GO Feature Flag in both evaluation modes, while [go-sdk-contrib#1053](https://github.com/open-feature/go-sdk-contrib/pull/1053) records separate in-process and remote results. The draft adoptions expose differences in numeric coercion, disabled flags, configuration-change events, and readiness, which is the point of using identical scenarios.
 
 ## flagd & Operator
 ### flagd
 
-- **OFREP bulk responses can preserve flag-set metadata:** [flagd-ofrep-cf-worker#95](https://github.com/open-feature/flagd-ofrep-cf-worker/pull/95) adds an option to keep that metadata at the top level.
-- **Provider reconnect failures remain under investigation:** [flagd#2053](https://github.com/open-feature/flagd/issues/2053) tracks providers emitting an error after failing to reconnect within five seconds.
+- **Targeting metadata has a portable proposal:** [flagd#2089](https://github.com/open-feature/flagd/pull/2089) replaces a tagged multi-key object with a single-key array operator, avoiding parse and evaluation differences across Go, Python, .NET, Java, JavaScript, Rust, and C++. The terminal operator can select a variant and attach a reason and rule-level metadata; [flagd#2090](https://github.com/open-feature/flagd/issues/2090) tracks schema, testbed, and SDK follow-up work.
+- **Fractional v3 is now implemented in flagd:** [flagd#2011](https://github.com/open-feature/flagd/pull/2011) uses canonical CBOR for deterministic hashing, accepts boolean, numeric, object, and array bucketing values, and rejects invalid implicit targeting keys. The change can reassign existing users, so all flagd components need coordinated upgrades. [flagd-testbed#434](https://github.com/open-feature/flagd-testbed/pull/434) updates the testbed image to v0.18.0, and [flagd-testbed#436](https://github.com/open-feature/flagd-testbed/pull/436) adds composition coverage.
+- **Metrics now carry flag-set attribution:** [flagd#2078](https://github.com/open-feature/flagd/pull/2078) preserves non-empty string flag-set IDs across typed and OFREP single and bulk evaluations. [flagd#2092](https://github.com/open-feature/flagd/pull/2092) proposes bounding HTTP metric labels so arbitrary paths and methods cannot create unbounded series.
+- **Kubernetes sync has a potentially quadratic resource problem:** [flagd#2094](https://github.com/open-feature/flagd/issues/2094) reports that each source watches every FeatureFlag in its namespace, multiplying cache memory, API watches, and logs as sources increase.
 
 ### Operator
 
-- **Helm installation is getting end-to-end coverage:** [open-feature-operator#867](https://github.com/open-feature/open-feature-operator/pull/867) adds a Helm deployment target and runs the Chainsaw suite through both Helm and Kustomize paths.
+- **Pod mutation is being limited to creation:** [open-feature-operator#868](https://github.com/open-feature/open-feature-operator/pull/868) skips mutation and patching on UPDATE requests, preventing duplicate sidecar injection and allowing garbage-collection updates and foreground deletions to complete.
 
 ## SDKs & Providers
 
-- **Dart moved from readiness work to published packages:** [dart-sdk#208](https://github.com/open-feature/dart-sdk/pull/208) releases the client SDK at 0.0.1, while [dart-sdk#209](https://github.com/open-feature/dart-sdk/pull/209) releases the server SDK at 0.1.0.
-- **Go event registration no longer holds the executor lock during callbacks:** [go-sdk#618](https://github.com/open-feature/go-sdk/pull/618) addresses the reentrancy and panic risks described in [go-sdk#551](https://github.com/open-feature/go-sdk/issues/551).
-- **Python hooks now carry updated context forward:** [python-sdk#649](https://github.com/open-feature/python-sdk/pull/649) propagates evaluation context changes to subsequent `before` hooks.
-- **Fractional evaluation is converging on context-wide bucketing:** [js-sdk-contrib#1636](https://github.com/open-feature/js-sdk-contrib/pull/1636) and [rust-sdk-contrib#165](https://github.com/open-feature/rust-sdk-contrib/pull/165) make the behavior available for any context type, with fractional reassignment implications. Broader hashing and non-string attribute consistency is tracked in [flagd#1737](https://github.com/open-feature/flagd/issues/1737).
-- **Swift added more lifecycle and hook building blocks:** [swift-sdk#139](https://github.com/open-feature/swift-sdk/pull/139) adds `HookData`, [swift-sdk#141](https://github.com/open-feature/swift-sdk/pull/141) adds telemetry utilities, and [swift-sdk#142](https://github.com/open-feature/swift-sdk/pull/142) implements shutdown and wait-for-shutdown APIs.
-- **Go Feature Flag telemetry now respects tracking configuration:** [go-sdk-contrib#1034](https://github.com/open-feature/go-sdk-contrib/pull/1034) makes the in-process data collector honor `trackEvents`.
+- **The fractional v3 rollout continued across SDKs:** [dotnet-sdk-contrib#748](https://github.com/open-feature/dotnet-sdk-contrib/pull/748) and [python-sdk-contrib#415](https://github.com/open-feature/python-sdk-contrib/pull/415) add canonical CBOR hashing, non-string bucketing, and v3 test coverage, extending the cross-runtime alignment described in the previous edition.
+- **Go is tightening evaluation isolation and hook reporting:** [go-sdk#620](https://github.com/open-feature/go-sdk/pull/620) keeps hook state local to each evaluation so nested or concurrent calls cannot overwrite one another. [go-sdk#623](https://github.com/open-feature/go-sdk/pull/623) makes `Finally` see the default value, `ERROR` reason, and `GENERAL` code when an after-hook rejects a result.
+- **Dart exposed the server cleanup deadline and hardened conformance evidence:** [dart-sdk#214](https://github.com/open-feature/dart-sdk/pull/214) makes the provider shutdown timeout configurable while preserving the five-second default and in-flight snapshotting. [dart-sdk#212](https://github.com/open-feature/dart-sdk/pull/212) adds shutdown and reinitialization regression coverage and records the remaining release-readiness gaps.
 
 ## Community & Governance
 
-- **The provider directory keeps expanding:** [openfeature.dev#1594](https://github.com/open-feature/openfeature.dev/pull/1594) adds Flagtide, [openfeature.dev#1587](https://github.com/open-feature/openfeature.dev/pull/1587) adds Ageris for Java, and [openfeature.dev#1585](https://github.com/open-feature/openfeature.dev/pull/1585) adds Featureflip for Ruby.
-- **OpenFeature.dev is becoming more machine-readable:** [openfeature.dev#1579](https://github.com/open-feature/openfeature.dev/pull/1579) generates `llms.txt` and per-page Markdown for downstream tooling.
+- **Contributor roles were refreshed:** [community#581](https://github.com/open-feature/community/pull/581) moved users without GitHub activity in the last year to emeritus, while [community#583](https://github.com/open-feature/community/pull/583) promoted m-olko to flagd approver and [community#582](https://github.com/open-feature/community/pull/582) proposes the same role for NeaguGeorgiana23.
+- **The ecosystem directory added new service and provider options:** [openfeature.dev#1557](https://github.com/open-feature/openfeature.dev/pull/1557) adds Togul's OFREP API, including bulk ETags and an SSE event stream, and [openfeature.dev#1575](https://github.com/open-feature/openfeature.dev/pull/1575) adds dif.sh's JavaScript server provider for Markdown-backed flags and experiments.
 
 ---
 
 _Routine dependency bumps (renovate/dependabot) and automated release PRs are omitted from this digest._
 
-_Generated on 2026-10-14. Covers activity from 2026-09-30 to 2026-10-14._
+_Generated on 2026-10-21. Covers activity from 2026-10-07 to 2026-10-21._
 <!-- END:latest -->
