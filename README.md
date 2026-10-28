@@ -7,63 +7,65 @@ A biweekly digest of the most notable pull requests, issues, and discussions acr
 ## Recent editions
 
 <!-- BEGIN:editions -->
+- [Oct 14 to Oct 28, 2026](./updates/2026-10-28.md)
 - [Oct 7 to Oct 21, 2026](./updates/2026-10-21.md)
 - [Sep 30 to Oct 14, 2026](./updates/2026-10-14.md)
 - [Sep 24 to Oct 8, 2026](./updates/2026-10-08.md)
 - [Sep 17 to Oct 1, 2026](./updates/2026-10-01.md)
-- [Sep 10 to Sep 24, 2026](./updates/2026-09-24.md)
 <!-- END:editions -->
 
 ---
 
 <!-- BEGIN:latest -->
-# OpenFeature Community Update: Oct 7 to Oct 21, 2026
+# OpenFeature Community Update: Oct 14 to Oct 28, 2026
 
 _A biweekly digest of the most notable pull requests, issues, and discussions across the [open-feature](https://github.com/open-feature) org._
 
 ## TL;DR
 
-- **Provider conformance moved from design toward a reusable release:** [spec#423](https://github.com/open-feature/spec/pull/423) landed the executable assets, and [spec#448](https://github.com/open-feature/spec/pull/448) set their first version to experimental 0.1.0.
-- **Fractional v3 expanded beyond the rollout covered last edition:** [flagd#2011](https://github.com/open-feature/flagd/pull/2011), [dotnet-sdk-contrib#748](https://github.com/open-feature/dotnet-sdk-contrib/pull/748), and [python-sdk-contrib#415](https://github.com/open-feature/python-sdk-contrib/pull/415) now use deterministic CBOR hashing for non-string context values.
-- **flagd adopted a more portable targeting metadata shape:** [flagd#2089](https://github.com/open-feature/flagd/pull/2089) proposes a terminal `resolve` operator that works across the ecosystem's JSON logic engines.
-- **flagd observability improved while a Kubernetes scaling bug surfaced:** [flagd#2078](https://github.com/open-feature/flagd/pull/2078) adds flag-set IDs to evaluation metrics, while [flagd#2094](https://github.com/open-feature/flagd/issues/2094) reports quadratic cache and log growth with multiple Kubernetes sources.
+- **Fractional evaluation v3 reached more runtimes:** [cpp-sdk-contrib#131](https://github.com/open-feature/cpp-sdk-contrib/pull/131), [go-sdk-contrib#932](https://github.com/open-feature/go-sdk-contrib/pull/932), [java-sdk-contrib#1831](https://github.com/open-feature/java-sdk-contrib/pull/1831), [js-sdk-contrib#1636](https://github.com/open-feature/js-sdk-contrib/pull/1636), and [rust-sdk-contrib#165](https://github.com/open-feature/rust-sdk-contrib/pull/165) now implement deterministic non-string bucketing.
+- **Provider conformance moved into adoption work:** [java-sdk-contrib#1945](https://github.com/open-feature/java-sdk-contrib/pull/1945) and [java-sdk-contrib#1952](https://github.com/open-feature/java-sdk-contrib/pull/1952) provide shared execution plumbing, while [java-sdk-contrib#1947](https://github.com/open-feature/java-sdk-contrib/pull/1947) and [go-sdk-contrib#1053](https://github.com/open-feature/go-sdk-contrib/pull/1053) compare GO Feature Flag behavior across modes.
+- **flagd fixed the Kubernetes sync scaling path and tightened numeric handling:** [flagd#2095](https://github.com/open-feature/flagd/pull/2095) resolves the watcher multiplication reported in [flagd#2094](https://github.com/open-feature/flagd/issues/2094), and [flagd#2100](https://github.com/open-feature/flagd/pull/2100) adds strict numeric range enforcement.
+- **The ecosystem added new provider options and an agent skills workgroup:** [community#584](https://github.com/open-feature/community/pull/584), [openfeature.dev#1587](https://github.com/open-feature/openfeature.dev/pull/1587), [openfeature.dev#1594](https://github.com/open-feature/openfeature.dev/pull/1594), and [openfeature.dev#1624](https://github.com/open-feature/openfeature.dev/pull/1624).
 
 ## Spec & Protocol
-### Shipped
+### Proposals to watch
 
-- **Provider conformance assets are now executable and releasable:** [spec#423](https://github.com/open-feature/spec/pull/423) adds six Gherkin feature files, a canonical flag set, a control API description, and an embeddable Go module for language implementations. [spec#448](https://github.com/open-feature/spec/pull/448) corrects the initial package version to 0.1.0 while the capability vocabulary, control API, and Appendix F remain experimental.
+- **Observability mappings are moving toward generated, versioned output:** [spec#451](https://github.com/open-feature/spec/pull/451) uses pinned OpenTelemetry semantic conventions and Weaver to generate Appendix D tables and validation snapshots. It responds to [spec#449](https://github.com/open-feature/spec/issues/449), which asks how the appendix should track upstream semantic convention releases and requirement-level changes.
+- **Multi-Provider behavior is proposed for formalization:** [spec#437](https://github.com/open-feature/spec/issues/437) calls for numbered requirements and shared conformance tests covering initialization, status aggregation, evaluation strategies, hooks, tracking, shutdown, and error handling across SDKs.
 
 ## Provider Conformance TCK
 
-- **The cross-language suite is moving into real provider adoptions:** [spec#417](https://github.com/open-feature/spec/issues/417) tracks one shared definition of provider conformance across typed resolution, errors, lifecycle, events, reasons, and metadata. The Java implementation in [java-sdk-contrib#1830](https://github.com/open-feature/java-sdk-contrib/pull/1830) is merged, with [java-sdk-contrib#1945](https://github.com/open-feature/java-sdk-contrib/pull/1945) providing a root `tck` profile instead of provider-specific build setup.
-- **Provider comparisons are already finding different behavior:** [java-sdk-contrib#1947](https://github.com/open-feature/java-sdk-contrib/pull/1947) exercises GO Feature Flag in both evaluation modes, while [go-sdk-contrib#1053](https://github.com/open-feature/go-sdk-contrib/pull/1053) records separate in-process and remote results. The draft adoptions expose differences in numeric coercion, disabled flags, configuration-change events, and readiness, which is the point of using identical scenarios.
+- **The shared Java adoption path is now simpler:** [java-sdk-contrib#1945](https://github.com/open-feature/java-sdk-contrib/pull/1945) adds a root `tck` Maven profile and dedicated CI job, while [java-sdk-contrib#1952](https://github.com/open-feature/java-sdk-contrib/pull/1952) adds reusable extension tags and backend-control steps. Both are part of the cross-language effort tracked in [spec#417](https://github.com/open-feature/spec/issues/417).
+- **Adoptions are exposing real provider differences:** the draft [java-sdk-contrib#1947](https://github.com/open-feature/java-sdk-contrib/pull/1947) passes 64 of 65 in-process GO Feature Flag scenarios but records five remote disabled-flag failures, while [go-sdk-contrib#1053](https://github.com/open-feature/go-sdk-contrib/pull/1053) records separate in-process and remote results with numeric coercion and configuration-change deviations. [java-sdk-contrib#1950](https://github.com/open-feature/java-sdk-contrib/pull/1950) and [java-sdk-contrib#1951](https://github.com/open-feature/java-sdk-contrib/pull/1951) extend the adoption queue to Flipt and flagd.
+
+## Fractional Evaluation v3 rollout
+
+- **In flight:** Coordinated deployment upgrades remain in flight. The rollout now includes C++, Go, Java, JavaScript, and Rust implementations through [cpp-sdk-contrib#131](https://github.com/open-feature/cpp-sdk-contrib/pull/131), [go-sdk-contrib#932](https://github.com/open-feature/go-sdk-contrib/pull/932), [java-sdk-contrib#1831](https://github.com/open-feature/java-sdk-contrib/pull/1831), [js-sdk-contrib#1636](https://github.com/open-feature/js-sdk-contrib/pull/1636), and [rust-sdk-contrib#165](https://github.com/open-feature/rust-sdk-contrib/pull/165). They use canonical CBOR for deterministic hashing and accept boolean, numeric, and object randomization units.
+- **Tracking:** The umbrella [flagd#1737](https://github.com/open-feature/flagd/issues/1737) is now closed after the cross-runtime work. Deployments still need coordinated upgrades because the new hashing algorithm can reassign existing users.
 
 ## flagd & Operator
 ### flagd
 
-- **Targeting metadata has a portable proposal:** [flagd#2089](https://github.com/open-feature/flagd/pull/2089) replaces a tagged multi-key object with a single-key array operator, avoiding parse and evaluation differences across Go, Python, .NET, Java, JavaScript, Rust, and C++. The terminal operator can select a variant and attach a reason and rule-level metadata; [flagd#2090](https://github.com/open-feature/flagd/issues/2090) tracks schema, testbed, and SDK follow-up work.
-- **Fractional v3 is now implemented in flagd:** [flagd#2011](https://github.com/open-feature/flagd/pull/2011) uses canonical CBOR for deterministic hashing, accepts boolean, numeric, object, and array bucketing values, and rejects invalid implicit targeting keys. The change can reassign existing users, so all flagd components need coordinated upgrades. [flagd-testbed#434](https://github.com/open-feature/flagd-testbed/pull/434) updates the testbed image to v0.18.0, and [flagd-testbed#436](https://github.com/open-feature/flagd-testbed/pull/436) adds composition coverage.
-- **Metrics now carry flag-set attribution:** [flagd#2078](https://github.com/open-feature/flagd/pull/2078) preserves non-empty string flag-set IDs across typed and OFREP single and bulk evaluations. [flagd#2092](https://github.com/open-feature/flagd/pull/2092) proposes bounding HTTP metric labels so arbitrary paths and methods cannot create unbounded series.
-- **Kubernetes sync has a potentially quadratic resource problem:** [flagd#2094](https://github.com/open-feature/flagd/issues/2094) reports that each source watches every FeatureFlag in its namespace, multiplying cache memory, API watches, and logs as sources increase.
-
-### Operator
-
-- **Pod mutation is being limited to creation:** [open-feature-operator#868](https://github.com/open-feature/open-feature-operator/pull/868) skips mutation and patching on UPDATE requests, preventing duplicate sidecar injection and allowing garbage-collection updates and foreground deletions to complete.
+- **The Kubernetes sync fix removes the N-squared resource path:** [flagd#2095](https://github.com/open-feature/flagd/pull/2095) adds a resource-name field selector so each source lists and watches only its configured `FeatureFlag`, resolving the cache, watch, and log multiplication described in [flagd#2094](https://github.com/open-feature/flagd/issues/2094).
+- **Numeric coercion is becoming more explicit:** [flagd#2100](https://github.com/open-feature/flagd/pull/2100) returns `TYPE_MISMATCH` for lossy conversions and out-of-range values when strict mode is enabled. [flagd#2101](https://github.com/open-feature/flagd/issues/2101) proposes making the 53-bit range the default in a future release.
+- **Operational telemetry and validation are getting follow-up fixes:** [flagd#2103](https://github.com/open-feature/flagd/pull/2103) removes duplicate OFREP and sync HTTP metrics, while [flagd#2106](https://github.com/open-feature/flagd/pull/2106) adds feature flag attributes to OFREP evaluation spans, [flagd#2107](https://github.com/open-feature/flagd/pull/2107) rejects invalid port values, and [flagd#2110](https://github.com/open-feature/flagd/pull/2110) routes Kubernetes watch failures through flagd logging and metrics.
 
 ## SDKs & Providers
 
-- **The fractional v3 rollout continued across SDKs:** [dotnet-sdk-contrib#748](https://github.com/open-feature/dotnet-sdk-contrib/pull/748) and [python-sdk-contrib#415](https://github.com/open-feature/python-sdk-contrib/pull/415) add canonical CBOR hashing, non-string bucketing, and v3 test coverage, extending the cross-runtime alignment described in the previous edition.
-- **Go is tightening evaluation isolation and hook reporting:** [go-sdk#620](https://github.com/open-feature/go-sdk/pull/620) keeps hook state local to each evaluation so nested or concurrent calls cannot overwrite one another. [go-sdk#623](https://github.com/open-feature/go-sdk/pull/623) makes `Finally` see the default value, `ERROR` reason, and `GENERAL` code when an after-hook rejects a result.
-- **Dart exposed the server cleanup deadline and hardened conformance evidence:** [dart-sdk#214](https://github.com/open-feature/dart-sdk/pull/214) makes the provider shutdown timeout configurable while preserving the five-second default and in-flight snapshotting. [dart-sdk#212](https://github.com/open-feature/dart-sdk/pull/212) adds shutdown and reinitialization regression coverage and records the remaining release-readiness gaps.
+- **Ruby completed its spec v0.9.0 compliance pass:** [ruby-sdk#361](https://github.com/open-feature/ruby-sdk/pull/361) closes audit findings around hook inputs, provider lifecycle, errors, and metadata, and [ruby-sdk#362](https://github.com/open-feature/ruby-sdk/pull/362) records the compliance claim.
+- **flagd integrations are converging on current transport and credential behavior:** [ruby-sdk-contrib#263](https://github.com/open-feature/ruby-sdk-contrib/pull/263) migrates the Ruby provider from evaluation.v1 to evaluation.v2, while [js-sdk-contrib#1630](https://github.com/open-feature/js-sdk-contrib/pull/1630) and [python-sdk-contrib#453](https://github.com/open-feature/python-sdk-contrib/pull/453) add caller-supplied gRPC channel credentials.
+- **Go is tightening Multi-Provider lifecycle and resolution details:** [go-sdk#632](https://github.com/open-feature/go-sdk/pull/632) preserves the provider reason on successful evaluations, [go-sdk#638](https://github.com/open-feature/go-sdk/pull/638) preserves error codes and wrapped causes, and [go-sdk#640](https://github.com/open-feature/go-sdk/pull/640) proposes resetting API state so an instance can be reused after shutdown.
+- **A Vue integration is now proposed for the JavaScript SDK:** [js-sdk#1504](https://github.com/open-feature/js-sdk/issues/1504) describes a Vue 3 plugin, reactive composables, provider scoping, and test utilities built on the web SDK.
 
 ## Community & Governance
 
-- **Contributor roles were refreshed:** [community#581](https://github.com/open-feature/community/pull/581) moved users without GitHub activity in the last year to emeritus, while [community#583](https://github.com/open-feature/community/pull/583) promoted m-olko to flagd approver and [community#582](https://github.com/open-feature/community/pull/582) proposes the same role for NeaguGeorgiana23.
-- **The ecosystem directory added new service and provider options:** [openfeature.dev#1557](https://github.com/open-feature/openfeature.dev/pull/1557) adds Togul's OFREP API, including bulk ETags and an SSE event stream, and [openfeature.dev#1575](https://github.com/open-feature/openfeature.dev/pull/1575) adds dif.sh's JavaScript server provider for Markdown-backed flags and experiments.
+- **Agent Skills now have an official home:** [community#584](https://github.com/open-feature/community/pull/584) adds the `open-feature/skills` repository and a skills workgroup for SDK, provider, and flagd development guidance.
+- **The ecosystem directory continues to broaden provider coverage:** [openfeature.dev#1585](https://github.com/open-feature/openfeature.dev/pull/1585) adds Featureflip's Ruby provider, [openfeature.dev#1587](https://github.com/open-feature/openfeature.dev/pull/1587) adds Ageris for Java, [openfeature.dev#1594](https://github.com/open-feature/openfeature.dev/pull/1594) adds the Flagtide web provider, and [openfeature.dev#1624](https://github.com/open-feature/openfeature.dev/pull/1624) proposes Featureflip's web and React entries.
 
 ---
 
 _Routine dependency bumps (renovate/dependabot) and automated release PRs are omitted from this digest._
 
-_Generated on 2026-10-21. Covers activity from 2026-10-07 to 2026-10-21._
+_Generated on 2026-10-28. Covers activity from 2026-10-14 to 2026-10-28._
 <!-- END:latest -->
