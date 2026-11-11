@@ -7,55 +7,69 @@ A biweekly digest of the most notable pull requests, issues, and discussions acr
 ## Recent editions
 
 <!-- BEGIN:editions -->
+- [Oct 28 to Nov 11, 2026](./updates/2026-11-11.md)
 - [Oct 21 to Nov 4, 2026](./updates/2026-11-04.md)
 - [Oct 14 to Oct 28, 2026](./updates/2026-10-28.md)
 - [Oct 7 to Oct 21, 2026](./updates/2026-10-21.md)
 - [Sep 30 to Oct 14, 2026](./updates/2026-10-14.md)
-- [Sep 24 to Oct 8, 2026](./updates/2026-10-08.md)
 <!-- END:editions -->
 
 ---
 
 <!-- BEGIN:latest -->
-# OpenFeature Community Update: Oct 21 to Nov 4, 2026
+# OpenFeature Community Update: Oct 28 to Nov 11, 2026
 
 _A biweekly digest of the most notable pull requests, issues, and discussions across the [open-feature](https://github.com/open-feature) org._
 
 ## TL;DR
 
-- **The OpenFeature Operator is preparing a breaking multi-tenancy change:** [open-feature-operator#847](https://github.com/open-feature/open-feature-operator/issues/847) and its follow-up series add cluster-scoped resources while removing implicit cross-namespace resolution.
-- **Provider conformance is becoming reusable across flagd adopters:** [java-sdk-contrib#1847](https://github.com/open-feature/java-sdk-contrib/pull/1847) now runs the Provider TCK in all three flagd resolver modes, with [flagd-testbed#445](https://github.com/open-feature/flagd-testbed/pull/445) packaging shared extension scenarios.
-- **flagd will recover from deleted and restored flag files without a restart:** [flagd#2117](https://github.com/open-feature/flagd/pull/2117) adds persistent re-watch behavior for file sync.
-- **Swift is adding two spec-aligned capabilities:** [swift-sdk#146](https://github.com/open-feature/swift-sdk/pull/146) proposes client-level event observation, and [swift-sdk#147](https://github.com/open-feature/swift-sdk/pull/147) proposes a logging hook.
+- **flagd's terminal `resolve` operator is moving from ADR to implementation:** [flagd#2090](https://github.com/open-feature/flagd/issues/2090), [flagd#2127](https://github.com/open-feature/flagd/pull/2127), and matching schema and testbed work add per-branch reasons and metadata.
+- **The flagd evaluation v2 migration is advancing:** [rust-sdk-contrib#179](https://github.com/open-feature/rust-sdk-contrib/pull/179) moves the RPC resolver, while `ResolveAll` remains the blocker for web clients.
+- **Operator namespace isolation gained regression coverage and merge-semantics work:** [open-feature-operator#880](https://github.com/open-feature/open-feature-operator/pull/880) and [open-feature-operator#881](https://github.com/open-feature/open-feature-operator/pull/881) build on the breaking 0.10.0 design.
+- **OFREP implementations are tightening protocol behavior:** Rust, Java, and Ruby changes cover status handling, rate limits, numeric coercion, error details, and environment configuration.
 
-## Provider Conformance TCK
+## Spec & Protocol
+### Shipped
 
-- **flagd now has a shared conformance baseline:** [java-sdk-contrib#1847](https://github.com/open-feature/java-sdk-contrib/pull/1847) merged Provider TCK coverage for RPC, in-process, and file resolvers. Each suite has no failures: 63 of 65 scenarios pass in the gRPC modes, and 62 of 65 pass for the file resolver, with the remainder explicitly skipped.
-- **The extension path is moving out of legacy harnesses:** [flagd-testbed#445](https://github.com/open-feature/flagd-testbed/pull/445) adds an embedded `tck-extensions` module with 11 reusable feature files. [java-sdk-contrib#1951](https://github.com/open-feature/java-sdk-contrib/pull/1951) is the first consumer, running the remaining flagd scenarios through the shared extension hook. The work tracks the Provider TCK effort in [spec#417](https://github.com/open-feature/spec/issues/417).
+- **Java's flagd integration now applies lossless numeric coercion:** [java-sdk-contrib#1959](https://github.com/open-feature/java-sdk-contrib/pull/1959) widens whole numbers without loss, rejects values outside the IEEE-754 safe range, and prevents RPC values from being silently narrowed.
+
+### Proposals to watch
+
+- **Isolated API support continues across SDKs:** [spec#374](https://github.com/open-feature/spec/issues/374) tracks the remaining implementations, and [swift-sdk#151](https://github.com/open-feature/swift-sdk/pull/151) proposes a separate isolated module, provider ownership checks, and per-test API instances.
 
 ## flagd & Operator
 ### flagd
 
-- **File sync now has a recovery path after deletion:** [flagd#2117](https://github.com/open-feature/flagd/pull/2117) keeps retrying the watch until a deleted flag file reappears, including kubelet-style ConfigMap swaps, so in-process providers can receive restored flags without a process restart.
+- **Terminal `resolve` support is taking shape:** [flagd#2127](https://github.com/open-feature/flagd/pull/2127), [flagd-schemas#238](https://github.com/open-feature/flagd-schemas/pull/238), and [flagd-testbed#448](https://github.com/open-feature/flagd-testbed/pull/448) implement and test the [targeting metadata ADR](https://github.com/open-feature/flagd/blob/main/docs/architecture-decisions/targeting-variant-metadata.md). A terminal rule can select a variant, override its reason, and merge rule-level metadata, with malformed uses rejected without invalidating unrelated flags.
+- **Targeting can now preserve escaped variant names:** [flagd#2121](https://github.com/open-feature/flagd/pull/2121) fixes variants containing characters such as `&`, `<`, `>`, backslashes, and quotes, which previously failed lookup after JSON escaping.
 
 ### Operator
 
-- **Namespace isolation is being designed for the 0.10.0 breaking release:** [open-feature-operator#871](https://github.com/open-feature/open-feature-operator/pull/871) adds `ClusterFeatureFlagSource` and `ClusterInProcessConfiguration`, restricts namespaced references to the local namespace, and narrows Kubernetes sync RBAC. The stacked [open-feature-operator#873](https://github.com/open-feature/open-feature-operator/pull/873) and [open-feature-operator#875](https://github.com/open-feature/open-feature-operator/pull/875) define cluster-first layering and explicit namespace conditions, addressing the cross-namespace trust-boundary issue in [open-feature-operator#847](https://github.com/open-feature/open-feature-operator/issues/847).
-- **Sync credentials can leave resource specifications:** [open-feature-operator#879](https://github.com/open-feature/open-feature-operator/pull/879) adds Secret-backed bearer tokens, using a kubelet-expanded `secretKeyRef` rather than having the operator read or copy the token.
+- **Namespace-isolation design now has executable coverage:** [open-feature-operator#880](https://github.com/open-feature/open-feature-operator/pull/880) makes explicit default-valued fields override earlier layers, while [open-feature-operator#881](https://github.com/open-feature/open-feature-operator/pull/881) checks cross-namespace admission failures and namespace-scoped sync RBAC for the [open-feature-operator#847](https://github.com/open-feature/open-feature-operator/issues/847) breaking change.
+- **Injected flagd containers avoid service-link port collisions:** [open-feature-operator#883](https://github.com/open-feature/open-feature-operator/pull/883) always passes sync and OFREP ports explicitly, closing [open-feature-operator#882](https://github.com/open-feature/open-feature-operator/issues/882) after flagd began rejecting malformed port values.
+
+## flagd evaluation v2 migration
+
+[flagd#1088](https://github.com/open-feature/flagd/issues/1088) is the umbrella for removing deprecated evaluation v1 compatibility.
+
+- **In flight:** [rust-sdk-contrib#179](https://github.com/open-feature/rust-sdk-contrib/pull/179) migrates the RPC resolver to v2 and handles optional values and variants. [flagd-schemas#235](https://github.com/open-feature/flagd-schemas/issues/235) tracks the missing `ResolveAll` bulk-evaluation method.
+- **Tracking issues:** [js-sdk-contrib#1655](https://github.com/open-feature/js-sdk-contrib/issues/1655) remains blocked on `ResolveAll`, while [elixir-sdk-contrib#60](https://github.com/open-feature/elixir-sdk-contrib/issues/60) still needs an RPC resolver migration.
 
 ## SDKs & Providers
 
-- **Java’s numeric contract is becoming lossless:** [java-sdk-contrib#1957](https://github.com/open-feature/java-sdk-contrib/pull/1957) stops flagd-core from narrowing values when precision would be lost, while [java-sdk-contrib#1959](https://github.com/open-feature/java-sdk-contrib/pull/1959) adds lossless coercion and safe-range handling.
-- **Swift is filling two SDK capability gaps:** [swift-sdk#146](https://github.com/open-feature/swift-sdk/pull/146) adds client-scoped provider event observation, and [swift-sdk#147](https://github.com/open-feature/swift-sdk/pull/147) adds the Appendix A logging hook with opt-in evaluation-context logging.
+- **OFREP behavior is converging on the protocol:** [rust-sdk-contrib#183](https://github.com/open-feature/rust-sdk-contrib/pull/183) proposes strict status handling, redirect blocking, per-provider rate limits, and response metadata; [java-sdk-contrib#1970](https://github.com/open-feature/java-sdk-contrib/pull/1970), [java-sdk-contrib#1971](https://github.com/open-feature/java-sdk-contrib/pull/1971), and [java-sdk-contrib#1972](https://github.com/open-feature/java-sdk-contrib/pull/1972) add environment configuration, lossless number conversion, and server-provided 400 error details. [ruby-sdk-contrib#293](https://github.com/open-feature/ruby-sdk-contrib/pull/293) fixes spec-conformant camelCase error fields, and [dotnet-sdk-contrib#768](https://github.com/open-feature/dotnet-sdk-contrib/issues/768) tracks a failure mapping that currently reports some transport and server errors as `ErrorType.None`.
+- **Kotlin is preparing a WebAssembly target:** [kotlin-sdk#289](https://github.com/open-feature/kotlin-sdk/pull/289) adds Node.js and browser `wasmJs` targets with passing platform test suites.
+- **JavaScript gains a dependency-free schema hook:** [js-sdk-contrib#1661](https://github.com/open-feature/js-sdk-contrib/pull/1661) validates values with Standard Schema implementations such as Zod, Valibot, or ArkType, with configurable throw or log behavior.
+- **C++ adds a CodeReadiness hook:** [cpp-sdk-contrib#148](https://github.com/open-feature/cpp-sdk-contrib/pull/148) landed an after hook that compares the running binary version with a minimum version in flag metadata, with strict and lenient validation modes.
 
 ## Community & Governance
 
-- **flagd added a new approver:** [community#582](https://github.com/open-feature/community/pull/582) promotes NeaguGeorgiana23 after the cross-language fractional hashing work.
-- **The provider directory is expanding across languages:** [openfeature.dev#1636](https://github.com/open-feature/openfeature.dev/pull/1636) adds FeatBit Go, Kotlin, Python, Ruby, and Rust providers to the ecosystem listing.
+- **PHP maintainership changed hands:** [community#585](https://github.com/open-feature/community/pull/585) promotes JamieSinn to PHP maintainer and moves tcarrio to emeritus.
+- **The organization is removing unnecessary `pull_request_target` use:** [community#586](https://github.com/open-feature/community/issues/586) coordinates replacing it with read-only `pull_request` workflows and pinned actions across the repositories.
 
 ---
 
 _Routine dependency bumps (renovate/dependabot) and automated release PRs are omitted from this digest._
 
-_Generated on 2026-11-04. Covers activity from 2026-10-21 to 2026-11-04._
+_Generated on 2026-11-11. Covers activity from 2026-10-28 to 2026-11-11._
 <!-- END:latest -->
