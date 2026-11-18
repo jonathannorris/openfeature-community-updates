@@ -7,69 +7,69 @@ A biweekly digest of the most notable pull requests, issues, and discussions acr
 ## Recent editions
 
 <!-- BEGIN:editions -->
+- [Nov 4 to Nov 18, 2026](./updates/2026-11-18.md)
 - [Oct 28 to Nov 11, 2026](./updates/2026-11-11.md)
 - [Oct 21 to Nov 4, 2026](./updates/2026-11-04.md)
 - [Oct 14 to Oct 28, 2026](./updates/2026-10-28.md)
 - [Oct 7 to Oct 21, 2026](./updates/2026-10-21.md)
-- [Sep 30 to Oct 14, 2026](./updates/2026-10-14.md)
 <!-- END:editions -->
 
 ---
 
 <!-- BEGIN:latest -->
-# OpenFeature Community Update: Oct 28 to Nov 11, 2026
+# OpenFeature Community Update: Nov 4 to Nov 18, 2026
 
 _A biweekly digest of the most notable pull requests, issues, and discussions across the [open-feature](https://github.com/open-feature) org._
 
 ## TL;DR
 
-- **flagd's terminal `resolve` operator is moving from ADR to implementation:** [flagd#2090](https://github.com/open-feature/flagd/issues/2090), [flagd#2127](https://github.com/open-feature/flagd/pull/2127), and matching schema and testbed work add per-branch reasons and metadata.
-- **The flagd evaluation v2 migration is advancing:** [rust-sdk-contrib#179](https://github.com/open-feature/rust-sdk-contrib/pull/179) moves the RPC resolver, while `ResolveAll` remains the blocker for web clients.
-- **Operator namespace isolation gained regression coverage and merge-semantics work:** [open-feature-operator#880](https://github.com/open-feature/open-feature-operator/pull/880) and [open-feature-operator#881](https://github.com/open-feature/open-feature-operator/pull/881) build on the breaking 0.10.0 design.
-- **OFREP implementations are tightening protocol behavior:** Rust, Java, and Ruby changes cover status handling, rate limits, numeric coercion, error details, and environment configuration.
+- **Terminal `resolve` targeting is spreading across the ecosystem:** [flagd#2090](https://github.com/open-feature/flagd/issues/2090), [flagd-schemas#238](https://github.com/open-feature/flagd-schemas/pull/238), [js-sdk-contrib#1669](https://github.com/open-feature/js-sdk-contrib/pull/1669), [dotnet-sdk-contrib#782](https://github.com/open-feature/dotnet-sdk-contrib/pull/782), and [java-sdk-contrib#1979](https://github.com/open-feature/java-sdk-contrib/pull/1979).
+- **Rust’s OFREP provider tightened protocol behavior:** [rust-sdk-contrib#183](https://github.com/open-feature/rust-sdk-contrib/pull/183) and [rust-sdk-contrib#190](https://github.com/open-feature/rust-sdk-contrib/pull/190) are merged.
+- **The Rust flagd RPC resolver now uses evaluation v2:** [rust-sdk-contrib#179](https://github.com/open-feature/rust-sdk-contrib/pull/179) landed, with `ResolveAll` still tracked separately.
+- **The CLI is adding C++ code generation:** [cli#300](https://github.com/open-feature/cli/pull/300) adds type-safe headers, configurable namespaces, and custom templates.
 
 ## Spec & Protocol
 ### Shipped
 
-- **Java's flagd integration now applies lossless numeric coercion:** [java-sdk-contrib#1959](https://github.com/open-feature/java-sdk-contrib/pull/1959) widens whole numbers without loss, rejects values outside the IEEE-754 safe range, and prevents RPC values from being silently narrowed.
+- **Rust OFREP response handling now follows the protocol more closely:** [rust-sdk-contrib#183](https://github.com/open-feature/rust-sdk-contrib/pull/183) enforces successful status handling, blocks redirects, isolates rate limits per provider, and preserves response reasons and metadata. Its follow-up, [rust-sdk-contrib#190](https://github.com/open-feature/rust-sdk-contrib/pull/190), maps server error codes and details, handles code-default responses, distinguishes type mismatches, and bounds error-body reads.
 
 ### Proposals to watch
 
-- **Isolated API support continues across SDKs:** [spec#374](https://github.com/open-feature/spec/issues/374) tracks the remaining implementations, and [swift-sdk#151](https://github.com/open-feature/swift-sdk/pull/151) proposes a separate isolated module, provider ownership checks, and per-test API instances.
+- **The remaining Rust OFREP gaps are now explicit:** [rust-sdk-contrib#191](https://github.com/open-feature/rust-sdk-contrib/issues/191) tracks a request timeout and `OFREP_*` environment-variable defaults, including the protocol’s 10-second timeout requirement.
+
+## Terminal `resolve` targeting operator
+
+[flagd#2090](https://github.com/open-feature/flagd/issues/2090) tracks the rollout of per-branch variants, reasons, and metadata.
+
+- **In flight:** [flagd#2127](https://github.com/open-feature/flagd/pull/2127) defines the evaluator behavior, while [flagd-schemas#238](https://github.com/open-feature/flagd-schemas/pull/238) and [flagd-testbed#448](https://github.com/open-feature/flagd-testbed/pull/448) pin terminal placement, metadata precedence, malformed-argument fallback, and error semantics. JavaScript, .NET, and Java implementations are proposed in [js-sdk-contrib#1669](https://github.com/open-feature/js-sdk-contrib/pull/1669), [dotnet-sdk-contrib#782](https://github.com/open-feature/dotnet-sdk-contrib/pull/782), and [java-sdk-contrib#1979](https://github.com/open-feature/java-sdk-contrib/pull/1979).
 
 ## flagd & Operator
 ### flagd
 
-- **Terminal `resolve` support is taking shape:** [flagd#2127](https://github.com/open-feature/flagd/pull/2127), [flagd-schemas#238](https://github.com/open-feature/flagd-schemas/pull/238), and [flagd-testbed#448](https://github.com/open-feature/flagd-testbed/pull/448) implement and test the [targeting metadata ADR](https://github.com/open-feature/flagd/blob/main/docs/architecture-decisions/targeting-variant-metadata.md). A terminal rule can select a variant, override its reason, and merge rule-level metadata, with malformed uses rejected without invalidating unrelated flags.
-- **Targeting can now preserve escaped variant names:** [flagd#2121](https://github.com/open-feature/flagd/pull/2121) fixes variants containing characters such as `&`, `<`, `>`, backslashes, and quotes, which previously failed lookup after JSON escaping.
-
-### Operator
-
-- **Namespace-isolation design now has executable coverage:** [open-feature-operator#880](https://github.com/open-feature/open-feature-operator/pull/880) makes explicit default-valued fields override earlier layers, while [open-feature-operator#881](https://github.com/open-feature/open-feature-operator/pull/881) checks cross-namespace admission failures and namespace-scoped sync RBAC for the [open-feature-operator#847](https://github.com/open-feature/open-feature-operator/issues/847) breaking change.
-- **Injected flagd containers avoid service-link port collisions:** [open-feature-operator#883](https://github.com/open-feature/open-feature-operator/pull/883) always passes sync and OFREP ports explicitly, closing [open-feature-operator#882](https://github.com/open-feature/open-feature-operator/issues/882) after flagd began rejecting malformed port values.
+- **Sync sources can read rotating credentials from mounted files:** [flagd#2128](https://github.com/open-feature/flagd/pull/2128) adds `authHeaderPath`, reloads the file on each request, prefers it over an inline header, and reports missing or unreadable files instead of silently omitting authentication.
+- **The proxy is considering a safer selector default:** [flagd#2134](https://github.com/open-feature/flagd/issues/2134) proposes rejecting client-supplied `file:` selectors by default, with an explicit opt-in for debugging and load tests.
+- **The testbed’s 4.x line is moving to TCK extensions:** [flagd-testbed#450](https://github.com/open-feature/flagd-testbed/pull/450) drops the legacy `gherkin/` suite while keeping the 3.x release branch for SDKs that still depend on it.
 
 ## flagd evaluation v2 migration
 
-[flagd#1088](https://github.com/open-feature/flagd/issues/1088) is the umbrella for removing deprecated evaluation v1 compatibility.
+[flagd#1088](https://github.com/open-feature/flagd/issues/1088) tracks removal of deprecated evaluation v1 compatibility.
 
-- **In flight:** [rust-sdk-contrib#179](https://github.com/open-feature/rust-sdk-contrib/pull/179) migrates the RPC resolver to v2 and handles optional values and variants. [flagd-schemas#235](https://github.com/open-feature/flagd-schemas/issues/235) tracks the missing `ResolveAll` bulk-evaluation method.
-- **Tracking issues:** [js-sdk-contrib#1655](https://github.com/open-feature/js-sdk-contrib/issues/1655) remains blocked on `ResolveAll`, while [elixir-sdk-contrib#60](https://github.com/open-feature/elixir-sdk-contrib/issues/60) still needs an RPC resolver migration.
+- **In flight:** [rust-sdk-contrib#179](https://github.com/open-feature/rust-sdk-contrib/pull/179) is merged and now handles optional v2 values and variants in the RPC resolver. The remaining bulk-evaluation gap is [flagd-schemas#235](https://github.com/open-feature/flagd-schemas/issues/235), which tracks `ResolveAll`.
 
 ## SDKs & Providers
 
-- **OFREP behavior is converging on the protocol:** [rust-sdk-contrib#183](https://github.com/open-feature/rust-sdk-contrib/pull/183) proposes strict status handling, redirect blocking, per-provider rate limits, and response metadata; [java-sdk-contrib#1970](https://github.com/open-feature/java-sdk-contrib/pull/1970), [java-sdk-contrib#1971](https://github.com/open-feature/java-sdk-contrib/pull/1971), and [java-sdk-contrib#1972](https://github.com/open-feature/java-sdk-contrib/pull/1972) add environment configuration, lossless number conversion, and server-provided 400 error details. [ruby-sdk-contrib#293](https://github.com/open-feature/ruby-sdk-contrib/pull/293) fixes spec-conformant camelCase error fields, and [dotnet-sdk-contrib#768](https://github.com/open-feature/dotnet-sdk-contrib/issues/768) tracks a failure mapping that currently reports some transport and server errors as `ErrorType.None`.
-- **Kotlin is preparing a WebAssembly target:** [kotlin-sdk#289](https://github.com/open-feature/kotlin-sdk/pull/289) adds Node.js and browser `wasmJs` targets with passing platform test suites.
-- **JavaScript gains a dependency-free schema hook:** [js-sdk-contrib#1661](https://github.com/open-feature/js-sdk-contrib/pull/1661) validates values with Standard Schema implementations such as Zod, Valibot, or ArkType, with configurable throw or log behavior.
-- **C++ adds a CodeReadiness hook:** [cpp-sdk-contrib#148](https://github.com/open-feature/cpp-sdk-contrib/pull/148) landed an after hook that compares the running binary version with a minimum version in flag metadata, with strict and lenient validation modes.
+- **The CLI’s C++ generator is taking shape:** [cli#300](https://github.com/open-feature/cli/pull/300) adds `openfeature generate cpp`, type-safe flag keys and clients, namespace configuration, custom templates, and golden tests.
+- **The provider catalog gained broader client and server coverage:** [openfeature.dev#1636](https://github.com/open-feature/openfeature.dev/pull/1636) adds FeatBit Go, Kotlin, Python, Ruby, and Rust providers; [openfeature.dev#1624](https://github.com/open-feature/openfeature.dev/pull/1624) adds Featureflip web, React, and Android entries; [openfeature.dev#1679](https://github.com/open-feature/openfeature.dev/pull/1679) proposes Octopus Deploy’s JavaScript server provider.
+- **Go SDK provider lifecycle cleanup landed:** [go-sdk#643](https://github.com/open-feature/go-sdk/pull/643) cancels comparison-strategy contexts on return, while [go-sdk#628](https://github.com/open-feature/go-sdk/pull/628) stops the event goroutine when a shared provider is replaced.
+- **.NET evaluation events now use semantic error types:** [dotnet-sdk#852](https://github.com/open-feature/dotnet-sdk/pull/852) aligns emitted `error.type` values with the semantic conventions.
 
 ## Community & Governance
 
-- **PHP maintainership changed hands:** [community#585](https://github.com/open-feature/community/pull/585) promotes JamieSinn to PHP maintainer and moves tcarrio to emeritus.
-- **The organization is removing unnecessary `pull_request_target` use:** [community#586](https://github.com/open-feature/community/issues/586) coordinates replacing it with read-only `pull_request` workflows and pinned actions across the repositories.
+- **Project metadata is becoming more useful to maintainers:** [.project#4](https://github.com/open-feature/.project/pull/4) records all public OpenFeature Slack channels, and [.project#5](https://github.com/open-feature/.project/pull/5) proposes adding SDK maintainers to the project maintainers list so they can access CNCF resources.
 
 ---
 
 _Routine dependency bumps (renovate/dependabot) and automated release PRs are omitted from this digest._
 
-_Generated on 2026-11-11. Covers activity from 2026-10-28 to 2026-11-11._
+_Generated on 2026-11-18. Covers activity from 2026-11-04 to 2026-11-18._
 <!-- END:latest -->
